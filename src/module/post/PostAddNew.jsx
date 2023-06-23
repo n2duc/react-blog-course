@@ -1,19 +1,22 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { styled } from "styled-components";
+import slugify from "slugify";
+
 import Input from "../../components/input/Input";
 import Label from "../../components/label/Label";
 import Field from "../../components/Field/Field";
 import Radio from "../../components/checkbox/Radio";
 import { Dropdown } from "../../components/dropdown";
 import Button from "../../components/Button/Button";
-import { styled } from "styled-components";
-import slugify from "slugify";
 import { postStatus } from "../../utils/contants";
+import ImageUpload from "../../components/image/ImageUpload";
+import useFirebaseImage from "../../hooks/useFirebaseImage";
 
 const PostAddNewStyles = styled.div``;
 
 const PostAddNew = () => {
-    const { control, watch, setValue, handleSubmit } = useForm({
+    const { control, watch, setValue, handleSubmit, getValues } = useForm({
         mode: "onChange",
         defaultValues: {
             title: "",
@@ -24,14 +27,17 @@ const PostAddNew = () => {
     });
 
     const watchStatus = watch("status");
-    const watchCategory = watch("category");
+    // const watchCategory = watch("category");
 
     const addPostHandler = async (values) => {
         const cloneValues = {...values};
         cloneValues.slug = slugify(cloneValues.slug || cloneValues.title, { lower: true });
         cloneValues.status = Number(values.status);
-        console.log(values);
+        console.log(cloneValues);
+        // handleUploadImage(cloneValues.image);
     }
+
+    const { imgUrl, progress, handleDeleteImage, handleSelectImage } = useFirebaseImage(setValue, getValues);
 
     return <PostAddNewStyles>
         <h1 className="dashboard-heading">Add new post</h1>
@@ -83,6 +89,18 @@ const PostAddNew = () => {
             </div>
             <div className="grid grid-cols-2 gap-x-10 mb-10">
                 <Field>
+                    <Label>Image</Label>
+                    <ImageUpload
+                        className="h-[240px]"
+                        onChange={handleSelectImage} 
+                        name="imageUpload" 
+                        progress={progress} 
+                        image={imgUrl}
+                        handleDeleteImage={handleDeleteImage}
+                    >
+                    </ImageUpload>
+                </Field>
+                <Field>
                     <Label>Category</Label>
                     <Dropdown>
                         <Dropdown.Option>Knowledge</Dropdown.Option>
@@ -92,7 +110,6 @@ const PostAddNew = () => {
                         <Dropdown.Option>Developer</Dropdown.Option>
                     </Dropdown>
                 </Field>
-                <Field></Field>
             </div>
             <Button type="submit" className="mx-auto">
                 Add new post
