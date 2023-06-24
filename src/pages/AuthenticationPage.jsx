@@ -22,6 +22,7 @@ const AuthenticationPageStyles = styled.div`
         color: transparent;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
         font-weight: bold;
         font-size: 32px;
         margin-bottom: 32px;

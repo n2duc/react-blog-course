@@ -42,18 +42,21 @@ const HeaderStyles = styled.div`
             background-color: transparent;
             border-radius: 4px;
         }
-        .menu-link:hover {
-            background-color: ${props => props.theme.greenSmooth};
-        }
-        .menu-link:hover::before {
-            position: absolute;
-            content: "";
-            top: 4px;
-            right: 4px;
-            width: 6px;
-            height: 6px;
-            border-radius: 100px;
-            background-color: ${props => props.theme.primaryColor};
+        .menu-link {
+            &.active,
+            &:hover {
+                background-color: ${props => props.theme.greenSmooth};
+                &:before {
+                    position: absolute;
+                    content: "";
+                    top: 4px;
+                    right: 4px;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 100px;
+                    background-color: ${props => props.theme.primaryColor};
+                }
+            }
         }
     }
     .search {

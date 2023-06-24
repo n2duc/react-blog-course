@@ -11,6 +11,7 @@ const ImageUpload = (props) => {
                 type="file"
                 name={name}
                 className="hidden-input"
+                accept="image/*"
                 onChange={() => {}}
                 {...rest}
             />

@@ -1,5 +1,5 @@
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function useFirebaseImage(setValue, getValues) {
     const [progress, setProgress] = useState(0);
@@ -8,6 +8,10 @@ export default function useFirebaseImage(setValue, getValues) {
     if (!setValue || !getValues) return;
     const storage = getStorage();
 
+    useEffect(() => {
+        setImageUrl("");
+    }, [getValues("image_name")]);
+
     const handleUploadImage = (file) => {
         const storageRef = ref(storage, "images/" + file.name);
         const uploadTask = uploadBytesResumable(storageRef, file);
@@ -15,8 +19,7 @@ export default function useFirebaseImage(setValue, getValues) {
             "state_changed",
             (snapshot) => {
                 // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progressPercent =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                const progressPercent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 setProgress(progressPercent);
                 switch (snapshot.state) {
                     case "paused":
@@ -51,7 +54,7 @@ export default function useFirebaseImage(setValue, getValues) {
                 // Upload completed successfully, now we can get the download URL
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     console.log("File available at", downloadURL);
-                    setImageUrl(downloadURL);
+                    setImageUrl(`${downloadURL}?${Date.now()}`);
                     setProgress(0);
                 });
             }
@@ -66,7 +69,10 @@ export default function useFirebaseImage(setValue, getValues) {
     };
 
     const handleDeleteImage = () => {
-        const imageRef = ref(storage, "images/" + getValues("image_name"));
+        const imageName = getValues("image_name");
+        if (!imageName) return;
+        const imageRef = ref(storage, `images/${imageName}`);
+        
         // Delete the file
         deleteObject(imageRef)
             .then(() => {
