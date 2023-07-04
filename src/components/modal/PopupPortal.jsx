@@ -8,15 +8,14 @@ function createPortalWrapper() {
 };
 const portalElement = createPortalWrapper();
 
-const PopupPortal = () => {
+const PopupPortal = ({ children }) => {
     useEffect(() => {
         document.body.appendChild(portalElement);
     }, []);
 
-    const renderContent = (
-        <div></div>
-    );
-    return createPortal(renderContent, portalElement);
+    return createPortal(
+        <div className="modal">{children}</div>
+    , portalElement);
 };
 
 export default PopupPortal;

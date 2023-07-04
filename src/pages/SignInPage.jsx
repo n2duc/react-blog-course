@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/authContext';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -14,6 +14,8 @@ import InputTogglePassword from '../components/input/InputTogglePassword';
 import Button from '../components/Button/Button';
 import { auth } from '../firebase/firsebase-config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import PopupPortal from '../components/modal/PopupPortal';
+import Modal from '../components/modal/Modal';
 
 const schema = yup.object({
     email: yup
@@ -73,6 +75,14 @@ const SignInPage = () => {
         }
     }, [errors]);
 
+    const [showModal, setShowModal] = useState(false);
+    const openModal = () => {
+        setShowModal(true);
+    }
+    const closeModal = () => {
+        setShowModal(false);
+    }
+
     return (
         <AuthenticationPage>
             <form className='form' onSubmit={handleSubmit(handleSignIn)} autoComplete='off'>
@@ -91,7 +101,12 @@ const SignInPage = () => {
                 </Field>
                 <div className="sign-in-text">
                     <div className="have-account">Don't have account? <NavLink to="/sign-up">Sign Up</NavLink></div>
-                    <div className="forget-password">Forget Password?</div>
+                    <div className="forget-password" onClick={openModal}>Forget Password?</div>
+                    {showModal && (
+                        <PopupPortal>
+                            <Modal closeModal={closeModal}></Modal>
+                        </PopupPortal>
+                    )}
                 </div>
                 <Button
                     type='submit'

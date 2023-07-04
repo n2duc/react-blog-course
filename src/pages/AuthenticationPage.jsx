@@ -39,6 +39,10 @@ const AuthenticationPageStyles = styled.div`
             margin-bottom: 20px;
             color: ${props => props.theme.primaryColor};
             font-weight: 500;
+            cursor: pointer;
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
     .have-account {
