@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import PostCategory from "./PostCategory";
 import PostTitle from "./PostTitle";
 import PostMeta from "./PostMeta";
 import PostImage from "./PostImage";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase/firsebase-config";
+import useShortName from "../../hooks/useShortName";
 
 const PostFeatureItemStyles = styled.div`
     width: 100%;
@@ -69,17 +72,43 @@ const PostFeatureItemStyles = styled.div`
     }
 `;
 
-const PostFeatureItem = () => {
+const PostFeatureItem = ({ data }) => {
+    const [category, setCategory] = useState("");
+    const [user, setUser] = useState("");
+    
+    useEffect(() => {
+        async function fetch() {
+            const docRef = doc(db, "categories", data.categoryId);
+            const docSnap = await getDoc(docRef);
+            setCategory(docSnap.data());
+        };
+        fetch();
+    }, [data.categoryId]);
+    useEffect(() => {
+        async function fetchUser() {
+            if (data.userId) {
+                const docRef = doc(db, "users", data.userId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.data) {
+                    setUser(docSnap.data());
+                }
+            }
+        };
+        fetchUser();
+    }, [data.userId]);
+    if (!data || !data.id) return null;
+    const userName = useShortName(user?.fullname)
+    const datePost = new Date(new Date(data?.createdAt?.seconds * 1000)).toLocaleDateString("vi-VI");
     return (
         <PostFeatureItemStyles>
-            <PostImage url="https://images.unsplash.com/photo-1661956602153-23384936a1d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="unsplash"></PostImage>
+            <PostImage url={data.imgUrl} alt="unsplash"></PostImage>
             <div className="post-overlay"></div>
             <div className="post-content">
                 <div className="post-top">
-                    <PostCategory>Knowledge</PostCategory>
-                    <PostMeta></PostMeta>
+                    {category?.name && <PostCategory to={category.slug}>{category.name}</PostCategory>}
+                    <PostMeta to={userName} authorName={userName} date={datePost}></PostMeta>
                 </div>
-                <PostTitle size="big">How to create a blog with React and NodeJS</PostTitle>
+                <PostTitle to={data.slug} size="big">{data.title}</PostTitle>
             </div>
         </PostFeatureItemStyles>
     );

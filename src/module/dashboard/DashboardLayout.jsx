@@ -11,10 +11,14 @@ const DashboardStyles = styled.div`
     .dashboard {
         &-heading {
             font-weight: bold;
-            font-size: 36px;
-            margin-bottom: 40px;
-            color: ${(props) => props.theme.primaryColor};
+            font-size: 25px;
+            margin-bottom: 5px;
+            color: ${(props) => props.theme.black};
             letter-spacing: 1px;
+        }
+        &-short-desc {
+            font-size: 14px;
+            color: ${(props) => props.theme.gray80};
         }
         &-main {
             display: grid;
@@ -22,6 +26,15 @@ const DashboardStyles = styled.div`
             padding: 40px 20px;
             gap: 0 40px;
             align-items: start;
+        }
+        @media screen and (max-width: 1023.98px) {
+            &-heading {
+                font-size: 20px;
+            }
+            &-main {
+                grid-template-columns: 100%;
+                padding: 20px;
+            }
         }
     }
 `;

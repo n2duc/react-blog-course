@@ -3,6 +3,7 @@ import { styled } from "styled-components";
 import Button from "../Button/Button";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/authContext";
+import useShortName from "../../hooks/useShortName";
 
 const MenuLink = [
     {
@@ -99,7 +100,7 @@ function getUserName(name) {
 
 const Header = () => {
     const { userInfo } = useAuth();
-
+    const userName = useShortName(userInfo?.displayName);
     return (
         <HeaderStyles>
             <div className="container">
@@ -148,7 +149,7 @@ const Header = () => {
                     ) : (
                         <div className="header-auth">
                             <span>Hi, </span>
-                            <strong className="text-primary">{getUserName(userInfo?.displayName)}</strong>
+                            <strong className="text-primary">{userName}</strong>
                         </div>
                     )}
                 </div>

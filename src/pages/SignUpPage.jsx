@@ -14,6 +14,7 @@ import { auth, db } from '../firebase/firsebase-config';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import AuthenticationPage from './AuthenticationPage';
+import slugify from 'slugify';
 
 const schema = yup.object({
     fullname: yup
@@ -36,29 +37,34 @@ const SignUpPage = () => {
         handleSubmit, 
         formState: { errors, isValid, isSubmitting }, 
         watch,
-        reset,
     } = useForm({ mode: 'onChange', resolver: yupResolver(schema) });
 
     const handleSignUp = async (values) => {
-        console.log(values);
         if (!isValid) return;
-        await createUserWithEmailAndPassword(auth, values.email, values.password);
-        await updateProfile(auth.currentUser, {
-            displayName: values.fullname,
-        });
-        await setDoc(doc(db, "users", auth.currentUser.uid), {
-            fullname: values.fullname,
-            email: values.email,
-            password: values.password,
-            createdAt: serverTimestamp(),
-        });
-        toast.success(`Register successfully!`, {
-            position: 'top-right',
-            autoClose: 3000,
-            pauseOnHover: false,
-            delay: 0,
-        });
-        navigate("/");
+        try {
+            await createUserWithEmailAndPassword(auth, values.email, values.password);
+            await updateProfile(auth.currentUser, {
+                displayName: values.fullname,
+            });
+            await setDoc(doc(db, "users", auth.currentUser.uid), {
+                fullname: values.fullname,
+                email: values.email,
+                password: values.password,
+                username: slugify(values.fullname, { lower: true }),
+                createdAt: serverTimestamp(),
+            });
+            toast.success(`Register successfully!`, {
+                position: 'top-right',
+                autoClose: 3000,
+                pauseOnHover: false,
+                delay: 0,
+            });
+            navigate("/");
+        } catch (error) {
+            if (error.message.includes("auth/email-already-in-use")) {
+                toast.error(`Email already in use! Try other email.`)
+            }
+        }
     };
 
     useEffect(() => {
@@ -74,7 +80,7 @@ const SignUpPage = () => {
     }, [errors]);
 
     useEffect(() => {
-        document.title = "Register";
+        document.title = "Register Page";
     }, []);
 
     return (

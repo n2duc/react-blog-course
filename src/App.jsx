@@ -11,7 +11,12 @@ const DashboardLayout = lazy(() => import("./module/dashboard/DashboardLayout"))
 import DashboardPage from "./pages/DashboardPage";
 import PostManage from "./module/post/PostManage";
 import PostAddNew from "./module/post/PostAddNew";
+import PostCategory from "./module/post/PostCategory";
 import Loading from "./components/loading/Loading";
+import CategoryAddNew from "./module/category/CategoryAddNew";
+import UserProfile from "./module/user/UserProfile";
+import UserManage from "./module/user/UserManage";
+import UserAddNew from "./module/user/UserAddNew";
 
 function App() {
     return (
@@ -28,8 +33,13 @@ function App() {
 
                         <Route element={<DashboardLayout />}>
                             <Route path="/dashboard" element={<DashboardPage></DashboardPage>}></Route>
-                            <Route path="/manage/post" element={<PostManage></PostManage>}></Route>
                             <Route path="/manage/add-post" element={<PostAddNew></PostAddNew>}></Route>
+                            <Route path="/manage/post" element={<PostManage></PostManage>}></Route>
+                            <Route path="/manage/category" element={<PostCategory></PostCategory>}></Route>
+                            <Route path="/manage/add-category" element={<CategoryAddNew></CategoryAddNew>}></Route>
+                            <Route path="/manage/user" element={<UserManage></UserManage>}></Route>
+                            <Route path="/manage/add-user" element={<UserAddNew></UserAddNew>}></Route>
+                            <Route path="/profile" element={<UserProfile></UserProfile>}></Route>
                         </Route>
                     </Routes>
                 </AuthProvider>

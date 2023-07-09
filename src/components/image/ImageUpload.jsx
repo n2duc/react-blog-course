@@ -25,7 +25,7 @@ const ImageUpload = (props) => {
                     alt="upload-img"
                     className="max-w-[80px] mb-5"
                 />
-                <p className="font-semibold">Choose Photo</p>
+                <p className="text-sm font-semibold">Choose Photo</p>
             </div>}
             {image && (
                 <Fragment>
