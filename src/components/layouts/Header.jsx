@@ -93,11 +93,6 @@ const HeaderStyles = styled.div`
     }
 `;
 
-function getUserName(name) {
-    const userName = name?.toLowerCase().split(" ").slice(-2).join("");
-    return userName;
-}
-
 const Header = () => {
     const { userInfo } = useAuth();
     const userName = useShortName(userInfo?.displayName);

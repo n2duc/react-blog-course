@@ -1,24 +1,31 @@
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/authContext";
+import { userRole } from "../utils/contants";
+import Swal from "sweetalert2";
 
-export default function useFirebaseImage(setValue, getValues) {
+export default function useFirebaseImage(setValue, getValues, imageName = null, cb = null) {
+    const { userInfo } = useAuth();
     const [progress, setProgress] = useState(0);
     const [imgUrl, setImageUrl] = useState("");
     
     if (!setValue || !getValues) return;
-    const storage = getStorage();
-
+    
     useEffect(() => {
         setImageUrl("");
     }, [getValues("image_name")]);
-
+    
     const handleUploadImage = (file) => {
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
+        const storage = getStorage();
         const storageRef = ref(storage, "images/" + file.name);
         const uploadTask = uploadBytesResumable(storageRef, file);
         uploadTask.on(
             "state_changed",
             (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                 const progressPercent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 setProgress(progressPercent);
                 switch (snapshot.state) {
@@ -54,8 +61,7 @@ export default function useFirebaseImage(setValue, getValues) {
                 // Upload completed successfully, now we can get the download URL
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     console.log("File available at", downloadURL);
-                    setImageUrl(`${downloadURL}?${Date.now()}`);
-                    setProgress(0);
+                    setImageUrl(downloadURL);
                 });
             }
         );
@@ -69,9 +75,13 @@ export default function useFirebaseImage(setValue, getValues) {
     };
 
     const handleDeleteImage = () => {
-        const imageName = getValues("image_name");
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
+        const storage = getStorage();
         if (!imageName) return;
-        const imageRef = ref(storage, `images/${imageName}`);
+        const imageRef = ref(storage, `images/` + (imageName || getValues("image_name")) );
         
         // Delete the file
         deleteObject(imageRef)
@@ -79,18 +89,25 @@ export default function useFirebaseImage(setValue, getValues) {
                 // File deleted successfully
                 console.log("deleted successfully");
                 setImageUrl("");
+                setProgress(0);
+                cb && cb();
             })
             .catch((error) => {
                 // Uh-oh, an error occurred!
                 console.log("error occurred!");
+                setImageUrl("");
             });
     };
-    
+    const handleResetUpload = () => {
+        setImageUrl("");
+        setProgress(0);
+    };
     return {
         imgUrl,
         setImageUrl,
         progress,
         handleSelectImage,
-        handleDeleteImage
+        handleDeleteImage,
+        handleResetUpload
     };
 }

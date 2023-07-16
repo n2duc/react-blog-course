@@ -15,6 +15,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import AuthenticationPage from './AuthenticationPage';
 import slugify from 'slugify';
+import { userRole, userStatus } from '../utils/contants';
+import useShortName from '../hooks/useShortName';
 
 const schema = yup.object({
     fullname: yup
@@ -41,16 +43,21 @@ const SignUpPage = () => {
 
     const handleSignUp = async (values) => {
         if (!isValid) return;
+        const userName = useShortName(values.fullname);
         try {
             await createUserWithEmailAndPassword(auth, values.email, values.password);
             await updateProfile(auth.currentUser, {
                 displayName: values.fullname,
+                photoURL: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=580&q=80"
             });
             await setDoc(doc(db, "users", auth.currentUser.uid), {
                 fullname: values.fullname,
                 email: values.email,
                 password: values.password,
-                username: slugify(values.fullname, { lower: true }),
+                username: userName,
+                avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=580&q=80",
+                status: userStatus.ACTIVE,
+                role: userRole.USER,
                 createdAt: serverTimestamp(),
             });
             toast.success(`Register successfully!`, {

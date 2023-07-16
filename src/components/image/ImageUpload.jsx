@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import LoadingSpinner from "../loading/LoadingSpinner";
+import PropTypes from 'prop-types';
 
 const ImageUpload = (props) => {
     const { name, className = "", progress = 0, image = '', handleDeleteImage = () => {}, ...rest } = props;
@@ -43,5 +44,13 @@ const ImageUpload = (props) => {
         </label>
     );
 };
+
+ImageUpload.propTypes = {
+    name: PropTypes.string,
+    className: PropTypes.string,
+    progress: PropTypes.number,
+    image: PropTypes.string,
+    handleDeleteImage: PropTypes.func,
+}
 
 export default ImageUpload;

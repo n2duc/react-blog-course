@@ -1,6 +1,5 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useAuth } from "../../contexts/authContext";
 import DashboardHeading from "../dashboard/DashboardHeading";
 import Label from "../../components/label/Label";
 import Input from "../../components/input/Input";
@@ -8,6 +7,11 @@ import Field from "../../components/Field/Field";
 import Button from "../../components/Button/Button";
 import FieldCheckboxes from "../../components/Field/FieldCheckboxes";
 import Radio from "../../components/checkbox/Radio";
+import { categoryStatus } from "../../utils/contants";
+import slugify from "slugify";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase/firsebase-config";
+import { toast } from "react-toastify";
 
 const CategoryAddNew = () => {
     const {
@@ -15,6 +19,7 @@ const CategoryAddNew = () => {
         handleSubmit,
         watch,
         reset,
+        setValue,
         formState: { isValid, isSubmitting },
     } = useForm({
         mode: "onChange",
@@ -25,14 +30,44 @@ const CategoryAddNew = () => {
             createdAt: new Date(),
         },
     });
-    const { userInfo } = useAuth();
+    // const { userInfo } = useAuth();
+    const handleAddNewCategory = async (values) => {
+        if (!isValid) return;
+        const newValues = { ...values };
+        newValues.slug = slugify(newValues.slug || newValues.name, {
+            lower: true,
+        });
+        newValues.status = Number(newValues.status);
+        const colRef = collection(db, "categories");
+        try {
+            await addDoc(colRef, {
+                ...newValues,
+                createdAt: serverTimestamp(),
+            });
+            toast.success("Create new category done!");
+        } catch (error) {
+            toast.error(error.message);
+        } finally {
+            reset({
+                name: "",
+                slug: "",
+                status: 1,
+                createdAt: new Date(),
+            })
+        }
+        console.log(newValues);
+    };
+    const watchStatus = watch("status");
     return (
         <div>
             <DashboardHeading
                 title="New category"
                 desc="Add new category"
             ></DashboardHeading>
-            <form autoComplete="off">
+            <form
+                autoComplete="off"
+                onSubmit={handleSubmit(handleAddNewCategory)}
+            >
                 <div className="form-layout">
                     <Field>
                         <Label>Name</Label>
@@ -59,11 +94,17 @@ const CategoryAddNew = () => {
                             <Radio
                                 name="status"
                                 control={control}
-                                checked={true}
+                                checked={Number(watchStatus) === categoryStatus.APPROVED}
+                                value={categoryStatus.APPROVED}
                             >
                                 Approved
                             </Radio>
-                            <Radio name="status" control={control}>
+                            <Radio
+                                name="status"
+                                control={control}
+                                checked={Number(watchStatus) === categoryStatus.UNAPPROVED}
+                                value={categoryStatus.UNAPPROVED}
+                            >
                                 Unapproved
                             </Radio>
                         </FieldCheckboxes>

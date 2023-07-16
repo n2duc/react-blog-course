@@ -1,6 +1,8 @@
+import { signOut } from "firebase/auth";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
+import { auth } from "../../firebase/firsebase-config";
 const SidebarStyles = styled.div`
     max-width: 300px;
     width: 100%;
@@ -131,7 +133,7 @@ const sidebarLinks = [
                 />
             </svg>
         ),
-        onClick: () => {},
+        onClick: () => signOut(auth),
     },
 ];
 const Sidebar = () => {
