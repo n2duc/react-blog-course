@@ -44,7 +44,6 @@ const UserUpdate = () => {
         handleDeleteImage,
         handleSelectImage,
     } = useFirebaseImage(setValue, getValues, imageName, deleteAvatar);
-    if (!userId) return null;
     const handleUpdateUser = async (values) => {
         if (!isValid) return;
         if (userInfo?.role !== userRole.ADMIN) {
@@ -85,6 +84,7 @@ const UserUpdate = () => {
         }
         fetchData();
     }, [userId, reset]);
+    if (!userId) return null;
 
     return (
         <div>

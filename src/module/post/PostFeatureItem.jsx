@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { styled } from "styled-components";
 import PostCategory from "./PostCategory";
 import PostTitle from "./PostTitle";
 import PostMeta from "./PostMeta";
 import PostImage from "./PostImage";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase/firsebase-config";
-import useShortName from "../../hooks/useShortName";
+import slugify from "slugify";
 
 const PostFeatureItemStyles = styled.div`
     width: 100%;
@@ -73,32 +71,12 @@ const PostFeatureItemStyles = styled.div`
 `;
 
 const PostFeatureItem = ({ data }) => {
-    const [category, setCategory] = useState("");
-    const [user, setUser] = useState("");
-    
-    useEffect(() => {
-        async function fetch() {
-            const docRef = doc(db, "categories", data.categoryId);
-            const docSnap = await getDoc(docRef);
-            setCategory(docSnap.data());
-        };
-        fetch();
-    }, [data.categoryId]);
-    useEffect(() => {
-        async function fetchUser() {
-            if (data.userId) {
-                const docRef = doc(db, "users", data.userId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.data) {
-                    setUser(docSnap.data());
-                }
-            }
-        };
-        fetchUser();
-    }, [data.userId]);
     if (!data || !data.id) return null;
-    const userName = useShortName(user?.fullname)
-    const datePost = new Date(new Date(data?.createdAt?.seconds * 1000)).toLocaleDateString("vi-VI");
+    const date = data?.createdAt?.seconds
+    ? new Date(data?.createdAt?.seconds * 1000)
+    : new Date();
+    const formatDate = new Date(date).toLocaleDateString("vi-VI");
+    const { category, user } = data;
     return (
         <PostFeatureItemStyles>
             <PostImage url={data.imgUrl} alt="unsplash"></PostImage>
@@ -106,7 +84,7 @@ const PostFeatureItem = ({ data }) => {
             <div className="post-content">
                 <div className="post-top">
                     {category?.name && <PostCategory to={category.slug}>{category.name}</PostCategory>}
-                    <PostMeta to={userName} authorName={userName} date={datePost}></PostMeta>
+                    <PostMeta to={slugify(user?.username || "", { lower: true })} authorName={user?.fullname} date={formatDate}></PostMeta>
                 </div>
                 <PostTitle to={`blog/${data.slug}`} size="big">{data.title}</PostTitle>
             </div>

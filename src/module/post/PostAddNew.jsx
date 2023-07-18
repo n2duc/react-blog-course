@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { styled } from "styled-components";
 import slugify from "slugify";
-import { addDoc, collection, getDocs, query, serverTimestamp, where } from "firebase/firestore"
+import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where } from "firebase/firestore"
 
 import Input from "../../components/input/Input";
 import Label from "../../components/label/Label";
@@ -10,7 +9,7 @@ import Field from "../../components/Field/Field";
 import Radio from "../../components/checkbox/Radio";
 import { Dropdown } from "../../components/dropdown";
 import Button from "../../components/Button/Button";
-import { postStatus } from "../../utils/contants";
+import { postStatus, userRole } from "../../utils/contants";
 import ImageUpload from "../../components/image/ImageUpload";
 import useFirebaseImage from "../../hooks/useFirebaseImage";
 import Toggle from "../../components/toggle/Toggle";
@@ -18,17 +17,14 @@ import { db } from "../../firebase/firsebase-config";
 import { useAuth } from "../../contexts/authContext";
 import { toast } from "react-toastify";
 import DashboardHeading from "../dashboard/DashboardHeading";
+import Swal from "sweetalert2";
 
 
 const PostAddNew = () => {
+    const { userInfo } = useAuth();
     const [categories, setCategories] = useState([]);
     const [nameSelectCategory, setNameSelectCategory]  = useState("");
-    const { userInfo } = useAuth();
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        document.title = "Add new post";
-    }, []);
     
     const { control, watch, setValue, handleSubmit, getValues, reset } = useForm({
         mode: "onChange",
@@ -36,28 +32,53 @@ const PostAddNew = () => {
             title: "",
             slug: "",
             status: 2,
-            categoryId: "",
             hot: false,
+            image: "",
+            categoryId: {},
+            user: {},
         },
     });
     
-    const { imgUrl, setImageUrl, progress, handleDeleteImage, handleSelectImage } = useFirebaseImage(setValue, getValues);
+    const { imgUrl, progress, handleDeleteImage, handleSelectImage, handleResetUpload } = useFirebaseImage(setValue, getValues);
     const watchStatus = watch("status");
     const watchHot = watch("hot");
+
+    useEffect(() => {
+        document.title = "Add new post";
+    }, []);
     // const watchCategory = watch("category");
+    useEffect(() => {
+        async function fetchUserData() {
+            if (!userInfo.email) return;
+            const q = query(
+                collection(db, "users"),
+                where("email", "==", userInfo.email)
+            );
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                setValue("user", {
+                    id: doc.id,
+                    ...doc.data(),
+                });
+            });
+        }
+        fetchUserData();
+    }, [userInfo.email]);
     const addPostHandler = async (values) => {
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
         setLoading(true);
         try {
             const cloneValues = {...values};
-            cloneValues.slug = slugify(cloneValues.slug || cloneValues.title, { lower: true });
+            cloneValues.slug = slugify(values.slug || values.title, { lower: true });
             cloneValues.status = Number(values.status);
-            // console.log(cloneValues);
 
             const colRef = collection(db, "posts");
             await addDoc(colRef, {
                 ...cloneValues,
                 imgUrl,
-                userId: userInfo.uid,
                 createdAt: serverTimestamp(),
             });
             toast.success("Create new post successfully");
@@ -65,10 +86,12 @@ const PostAddNew = () => {
                 title: "",
                 slug: "",
                 status: 2,
-                categoryId: "",
                 hot: false,
+                image: "",
+                categoryId: {},
+                user: {},
             });
-            setImageUrl("");
+            handleResetUpload();
             setNameSelectCategory("");
         } catch (error) {
             setLoading(false);
@@ -94,8 +117,13 @@ const PostAddNew = () => {
         getDataCategories();
     }, []);
 
-    const handleClickCategory = (item) => {
-        setValue("categoryId", item.id);
+    const handleClickCategory = async (item) => {
+        const colRef = doc(db, "categories", item.id);
+        const docData = await getDoc(colRef);
+        setValue("category", {
+            id: docData.id,
+            ...docData.data(),
+        });
         setNameSelectCategory(item.name);
     };
 
@@ -119,10 +147,10 @@ const PostAddNew = () => {
                     <ImageUpload
                         className="h-[240px]"
                         onChange={handleSelectImage} 
+                        handleDeleteImage={handleDeleteImage}
                         name="imageUpload" 
                         progress={progress} 
                         image={imgUrl}
-                        handleDeleteImage={handleDeleteImage}
                     >
                     </ImageUpload>
                 </Field>

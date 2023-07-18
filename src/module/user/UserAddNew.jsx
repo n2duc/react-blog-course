@@ -15,6 +15,7 @@ import { auth, db } from "../../firebase/firsebase-config";
 import { addDoc, collection, serverTimestamp, setDoc } from "firebase/firestore";
 import useShortName from "../../hooks/useShortName";
 import { toast } from "react-toastify";
+import { useAuth } from "../../contexts/authContext";
 
 const UserAddNew = () => {
     const { control, handleSubmit, setValue, watch, getValues, reset, formState: {isValid, isSubmitting} } = useForm({
@@ -30,9 +31,14 @@ const UserAddNew = () => {
             createdAt: new Date(),
         },
     });
-    const { imgUrl, setImageUrl, progress, handleDeleteImage, handleSelectImage, handleResetUpload } = useFirebaseImage(setValue, getValues);
+    const { imgUrl, progress, handleDeleteImage, handleSelectImage, handleResetUpload } = useFirebaseImage(setValue, getValues);
+    const { userInfo } = useAuth();
     const handleCreateUser = async (values) => { 
         if (!isValid) return;
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
         const userName = useShortName(values.fullname);
         try {
             await createUserWithEmailAndPassword(auth, values.email, values.password);

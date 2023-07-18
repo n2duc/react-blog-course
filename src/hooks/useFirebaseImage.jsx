@@ -80,8 +80,7 @@ export default function useFirebaseImage(setValue, getValues, imageName = null, 
             return;
         }
         const storage = getStorage();
-        if (!imageName) return;
-        const imageRef = ref(storage, `images/` + (imageName || getValues("image_name")) );
+        const imageRef = ref(storage, "images/" + (imageName || getValues("image_name")) );
         
         // Delete the file
         deleteObject(imageRef)
@@ -95,6 +94,7 @@ export default function useFirebaseImage(setValue, getValues, imageName = null, 
             .catch((error) => {
                 // Uh-oh, an error occurred!
                 console.log("error occurred!");
+                console.log(error)
                 setImageUrl("");
             });
     };

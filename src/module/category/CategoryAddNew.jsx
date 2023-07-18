@@ -7,11 +7,12 @@ import Field from "../../components/Field/Field";
 import Button from "../../components/Button/Button";
 import FieldCheckboxes from "../../components/Field/FieldCheckboxes";
 import Radio from "../../components/checkbox/Radio";
-import { categoryStatus } from "../../utils/contants";
+import { categoryStatus, userRole } from "../../utils/contants";
 import slugify from "slugify";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../../firebase/firsebase-config";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const CategoryAddNew = () => {
     const {
@@ -30,9 +31,13 @@ const CategoryAddNew = () => {
             createdAt: new Date(),
         },
     });
-    // const { userInfo } = useAuth();
+    const { userInfo } = useAuth();
     const handleAddNewCategory = async (values) => {
         if (!isValid) return;
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
         const newValues = { ...values };
         newValues.slug = slugify(newValues.slug || newValues.name, {
             lower: true,

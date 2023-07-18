@@ -16,8 +16,7 @@ const ImageUpload = (props) => {
                 onChange={() => {}}
                 {...rest}
             />
-            {progress !== 0 && (
-                // <div className="loading w-16 h-16 border-5 border-green-700 border-t-transparent animate-spin absolute z-20 rounded-full"></div>
+            {progress !== 0 && !image && (
                 <LoadingSpinner size="50px" borderSize="6px" kind="green"></LoadingSpinner>
             )}
             {!image && progress === 0 && <div className="flex flex-col items-center text-center pointer-events-none">
@@ -38,7 +37,7 @@ const ImageUpload = (props) => {
                     </button>
                 </Fragment>
             )}
-            {!image &&<div className="absolute w-0 h-1 bg-green-400 bottom-0 left-0 transition-all image-upload-progress" style={{
+            {!image && <div className="absolute w-0 h-1 bg-green-400 bottom-0 left-0 transition-all image-upload-progress" style={{
                 width: `${Math.ceil(progress)}%`
             }}></div>}
         </label>

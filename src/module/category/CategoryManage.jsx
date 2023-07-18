@@ -10,7 +10,7 @@ import { collection, deleteDoc, doc, getDocs, limit, onSnapshot, query, startAft
 import { db } from "../../firebase/firsebase-config";
 import Swal from "sweetalert2";
 
-import { categoryStatus } from "../../utils/contants";
+import { categoryStatus, userRole } from "../../utils/contants";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "../../hooks/useDebounce";
 
@@ -22,8 +22,8 @@ const CategoryManage = () => {
     const [lastDoc, setLastDoc] = useState();
     const [total, setTotal] = useState(0);
 
-    const categoryDebounce = useDebounce(searchCate);
     const navigate = useNavigate();
+    const categoryDebounce = useDebounce(searchCate);
 
     const handleLoadMore = async () => {
         const nextRef = query(
@@ -78,6 +78,10 @@ const CategoryManage = () => {
     }, [categoryDebounce]);
 
     const onDeleteCategory = async (docId) => {
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
         const colRef = doc(db, "categories", docId);
         Swal.fire({
             title: 'Are you sure?',

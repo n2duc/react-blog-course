@@ -10,7 +10,7 @@ import Button from "../../components/Button/Button";
 import { useForm } from "react-hook-form";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/firsebase-config";
-import { categoryStatus } from "../../utils/contants";
+import { categoryStatus, userRole } from "../../utils/contants";
 import { toast } from "react-toastify";
 import slugify from "slugify";
 
@@ -38,6 +38,10 @@ const CategoryUpdate = () => {
     }, [categoryId, reset]);
     const handleUpdateCategory = async (values) => {
         if (!isValid) return;
+        if (userInfo?.role !== userRole.ADMIN) {
+            Swal.fire("Failed", "You have no right to do this action", "warning");
+            return;
+        }
         const colRef = doc(db, "categories", categoryId);
         await updateDoc(colRef, {
             name: values.name,
