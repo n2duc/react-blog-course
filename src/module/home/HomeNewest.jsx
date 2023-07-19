@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { styled } from 'styled-components';
 import Heading from '../../components/layouts/Heading';
 import PostNewestLarge from '../post/PostNewestLarge';
 import PostNewestItem from '../post/PostNewestItem';
 import PostRelated from '../post/PostRelated';
+import { collection, limit, onSnapshot, query, where } from 'firebase/firestore';
+import { db } from '../../firebase/firsebase-config';
+import { v4 } from 'uuid';
 
 const HomeNewestStyles = styled.div`
     .layout {
@@ -29,16 +32,35 @@ const HomeNewestStyles = styled.div`
 `;
 
 const HomeNewest = () => {
+    const [posts, setPost] = useState([]);
+    useEffect(() => {
+        const colRef = collection(db, "posts");
+        // Truy van posts noi bat
+        const queries = query(colRef, where("status", "==", 1), where("hot", "==", false), limit(4));
+        onSnapshot(queries, (snapshot) => {
+            const results = [];
+            snapshot.forEach((doc) => {
+                results.push({
+                    id: doc.id,
+                    ...doc.data(),
+                });
+            })
+            // Set post vao state posts
+            setPost(results);
+        })
+    }, []);
+    if (posts.length <= 0) return null;
+    const [first, ...other] = posts;
     return (
         <HomeNewestStyles className="home-block">
             <div className="container">
                 <Heading>Latest posts</Heading>
                 <div className="layout">
-                    <PostNewestLarge></PostNewestLarge>
+                    <PostNewestLarge data={first}></PostNewestLarge>
                     <div className="sidebar">
-                        <PostNewestItem></PostNewestItem>
-                        <PostNewestItem></PostNewestItem>
-                        <PostNewestItem></PostNewestItem>
+                        {other.map(item => (
+                            <PostNewestItem key={v4()} data={item}></PostNewestItem>
+                        ))}
                     </div>
                 </div>
                 <PostRelated></PostRelated>

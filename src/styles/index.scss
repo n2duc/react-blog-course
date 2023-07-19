@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import "reset";
+@import "content";
 
 body {
     font-family: "Poppins", sans-serif;
@@ -127,7 +128,7 @@ body {
 // Loading
 @keyframes dot-flasing {
     0% {
-        background-color: #2EBAC1;
+        background-color: #2ebac1;
     }
 
     50%,
@@ -148,7 +149,7 @@ body {
         width: 1rem;
         height: 1rem;
         border-radius: 50%;
-        background-color: #2EBAC1;
+        background-color: #2ebac1;
         animation: dot-flasing 0.8s infinite alternate;
     }
     > div:first-child {
@@ -162,5 +163,14 @@ body {
     }
     > div:last-child {
         animation-delay: 0.6s;
+    }
+}
+.quill {
+    position: relative;
+    .ql-toolbar {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 10;
     }
 }

@@ -9,6 +9,12 @@ const PostTitleStyles = styled.h3`
     a {
         display: block;
     }
+    ${props => props.size === "small" && css`
+        font-size: 18px;
+        @media screen and (max-width: 1023.98px) {
+            font-size: 14px;
+        }
+    `};
     ${props => props.size === "normal" && css`
         font-size: 18px;
         @media screen and (max-width: 1023.98px) {
@@ -26,7 +32,7 @@ const PostTitleStyles = styled.h3`
 const PostTitle = ({ children, className = "", size = "normal", to = "" }) => {
     return (
         <PostTitleStyles className={`post-title ${className}`}>
-            <Link to={`/${to}`}>{children}</Link>
+            <Link to={`/blog/${to}`}>{children}</Link>
         </PostTitleStyles>
     )
 }

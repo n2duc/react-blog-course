@@ -33,8 +33,8 @@ const PostAddNew = () => {
             slug: "",
             status: 2,
             hot: false,
-            image: "",
-            categoryId: {},
+            imgUrl: "",
+            category: {},
             user: {},
         },
     });
@@ -87,8 +87,8 @@ const PostAddNew = () => {
                 slug: "",
                 status: 2,
                 hot: false,
-                image: "",
-                categoryId: {},
+                imgUrl: "",
+                category: {},
                 user: {},
             });
             handleResetUpload();

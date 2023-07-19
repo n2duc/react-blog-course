@@ -13,9 +13,6 @@ const HomePageStyles = styled.div`
 `;
 
 const HomePage = () => {
-    const handleSignOut = () => {
-        signOut(auth);
-    };
     useEffect(() => {
         document.title = "N2D Blog";
     }, []);
@@ -26,7 +23,6 @@ const HomePage = () => {
                 <HomeFeature></HomeFeature>
                 <HomeNewest></HomeNewest>
             </Layout>
-            <button onClick={handleSignOut}>Sign Out</button>
         </HomePageStyles>
     );
 };

@@ -59,7 +59,7 @@ const CategoryUpdate = () => {
         <div>
             <DashboardHeading
                 title="Update Category"
-                desc={`Update your category id: ${categoryId}`}
+                desc={`Update your category ID: ${categoryId}`}
             ></DashboardHeading>
             <form
                 autoComplete="off"

@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useAuth } from "../../contexts/authContext";
 import DashboardHeading from "../dashboard/DashboardHeading";
 import Label from "../../components/label/Label";
 import Input from "../../components/input/Input";

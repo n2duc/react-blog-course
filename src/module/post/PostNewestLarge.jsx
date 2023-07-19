@@ -4,6 +4,7 @@ import PostCategory from "./PostCategory";
 import PostMeta from "./PostMeta";
 import PostTitle from "./PostTitle";
 import PostImage from "./PostImage";
+import slugify from "slugify";
 
 const PostNewestLargeStyles = styled.div`
     .post {
@@ -28,15 +29,24 @@ const PostNewestLargeStyles = styled.div`
     }
 `;
 
-const PostNewestLarge = () => {
+const PostNewestLarge = ({ data }) => {
+    if (!data.id) return null;
+    const date = data?.createdAt?.seconds
+        ? new Date(data?.createdAt?.seconds * 1000)
+        : new Date();
+    const formatDate = new Date(date).toLocaleDateString("vi-VI");
     return (
         <PostNewestLargeStyles>
-            <PostImage url="https://images.unsplash.com/photo-1661956602153-23384936a1d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="unsplash"></PostImage>
-            <PostCategory>Knowledge</PostCategory>
-            <PostTitle size="big">
-                How to create a blog with React and NodeJS
+            <PostImage url={data?.imgUrl} alt="unsplash" to={data?.slug}></PostImage>
+            <PostCategory to={data?.category?.slug}>{data?.category?.name}</PostCategory>
+            <PostTitle to={data?.slug} size="big">
+                {data?.title}
             </PostTitle>
-            <PostMeta></PostMeta>
+            <PostMeta
+                to={slugify(data?.user?.username || "", { lower: true })}
+                authorName={data?.user?.fullname}
+                date={formatDate}
+            ></PostMeta>
         </PostNewestLargeStyles>
     );
 };

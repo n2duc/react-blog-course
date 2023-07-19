@@ -11,8 +11,8 @@ const MenuLink = [
         path: "/",
     },
     {
-        title: "Blog",
-        path: "/blog",
+        title: "Blogs",
+        path: "/blogs",
     },
     {
         title: "About",
@@ -91,6 +91,21 @@ const HeaderStyles = styled.div`
         transform: translateY(-50%);
         right: 15px;
     }
+    .header-auth {
+        cursor: pointer;
+        background-color: white;
+        padding: 8px 20px;
+        border-radius: 4px;
+        border: 1px solid ${props => props.theme.primaryColor};
+        transition: all 0.1s ease;
+        user-select: none;
+        &:hover {
+            background-color: ${props => props.theme.primaryColor};
+            strong {
+                color: white;
+            }
+        }
+    }
 `;
 
 const Header = () => {
@@ -143,7 +158,6 @@ const Header = () => {
                         </Button>
                     ) : (
                         <div className="header-auth">
-                            <span>Hi, </span>
                             <strong className="text-primary">{userName}</strong>
                         </div>
                     )}

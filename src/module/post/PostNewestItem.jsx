@@ -4,6 +4,7 @@ import PostCategory from "./PostCategory";
 import PostTitle from "./PostTitle";
 import PostMeta from "./PostMeta";
 import PostImage from "./PostImage";
+import slugify from "slugify";
 
 const PostNewestItemStyles = styled.div`
     display: flex;
@@ -48,14 +49,23 @@ const PostNewestItemStyles = styled.div`
     }
 `;
 
-const PostNewestItem = () => {
+const PostNewestItem = ({ data }) => {
+    if (!data.id) return null;
+    const date = data?.createdAt?.seconds
+        ? new Date(data?.createdAt?.seconds * 1000)
+        : new Date();
+    const formatDate = new Date(date).toLocaleDateString("vi-VI");
     return (
         <PostNewestItemStyles>
-            <PostImage url="https://images.unsplash.com/photo-1661956602153-23384936a1d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="unsplash"></PostImage>
+            <PostImage url={data?.imgUrl} to={data?.slug} alt="unsplash"></PostImage>
             <div className="post-content">
-                <PostCategory type="secondary">Knowledge</PostCategory>
-                <PostTitle>How to create a blog with React and NodeJS</PostTitle>
-                <PostMeta></PostMeta>
+                <PostCategory to={data?.category?.slug} type="secondary">{data.category?.name}</PostCategory>
+                <PostTitle to={data?.slug}>{data?.title}</PostTitle>
+                <PostMeta
+                    to={slugify(data?.user?.username || "", { lower: true })}
+                    authorName={data?.user?.fullname}
+                    date={formatDate}
+                ></PostMeta>
             </div>
         </PostNewestItemStyles>
     );

@@ -8,7 +8,7 @@ import Button from "../../components/Button/Button";
 import { useForm } from "react-hook-form";
 
 const UserProfile = () => {
-    const { control } = useForm({ mode: "onChange" });
+    const { control, reset, handleSubmit, watch, setValue, getValues, formState: { isValid, isSubmitting } } = useForm({ mode: "onChange" });
     return (
         <div>
             <DashboardHeading
