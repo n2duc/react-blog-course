@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { styled } from "styled-components";
 import Button from "../Button/Button";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/authContext";
 import useShortName from "../../hooks/useShortName";
+import DropProfile from "./DropProfile";
+import useClickOutSide from "../../hooks/useClickOutSide";
+import { useEffect } from "react";
 
 const MenuLink = [
     {
@@ -101,9 +104,7 @@ const HeaderStyles = styled.div`
         user-select: none;
         &:hover {
             background-color: ${props => props.theme.primaryColor};
-            strong {
-                color: white;
-            }
+            color: white;
         }
     }
 `;
@@ -111,6 +112,23 @@ const HeaderStyles = styled.div`
 const Header = () => {
     const { userInfo } = useAuth();
     const userName = useShortName(userInfo?.displayName);
+    const [openProfile, setOpenProfile] = useState(false);
+    const dropMenu = useRef(null);
+
+    const toggleDrop = () => {
+        setOpenProfile(prev => !prev)
+    }
+    const handleClickOutSide = (e) => {
+        if (dropMenu.current && !dropMenu.current.contains(e.target)) {
+            setOpenProfile(false);
+        }
+    }
+    useEffect(() => {
+        document.addEventListener("click", handleClickOutSide);
+        return () => {
+            document.removeEventListener("click", handleClickOutSide);
+        }
+    }, []);
     return (
         <HeaderStyles>
             <div className="container">
@@ -157,8 +175,11 @@ const Header = () => {
                             Sign In
                         </Button>
                     ) : (
-                        <div className="header-auth">
-                            <strong className="text-primary">{userName}</strong>
+                        <div className="relative" ref={dropMenu}>
+                            <div className="header-auth text-primary font-bold" onClick={toggleDrop}>
+                                {userName}
+                            </div>
+                            { openProfile && <DropProfile></DropProfile> }
                         </div>
                     )}
                 </div>

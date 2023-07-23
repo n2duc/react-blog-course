@@ -1,0 +1,4 @@
+- Code phần update thông tin bản thân
+- Code phần Author header - dropdown ( xổ ra menu )
+- Code phần author details
+- ...
